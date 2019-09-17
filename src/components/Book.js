@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 // add propsTypes
 
 class Book extends Component {
@@ -34,7 +35,7 @@ state = {
                     </div>
                 </div>
                 <div className="book-title">{this.props.book.title}</div>
-                {this.props.book.authors.map((author,key) => (
+                {this.props.book.authors && this.props.book.authors.map((author,key) => (
                     <div className="book-authors" key={key}>{author}</div>
                 ))}
                 
