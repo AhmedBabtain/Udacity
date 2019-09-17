@@ -6,20 +6,14 @@ import Search from './components/Search';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
 
-const shelivesTypes = ["wantToRead", "currentlyReading", "read"];
+const shelivesTypes = ["currentlyReading", "wantToRead", "read"];
 
 class BooksApp extends React.Component {
+  
   state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: false,
     books: [],
-    searchResults: []
-
+    searchResults: [],
+    searchTerm:''
   }
 
   updateBookShelf = (book,shelf) => {
@@ -37,22 +31,35 @@ class BooksApp extends React.Component {
     })
   }
 
-  searchForBook = (searchTerm) => {
-    BooksAPI.search(searchTerm).then((result) => {
-      this.setState((prevState) => {
-        return ({
-          searchResults: result
-        })
-      },console.log(this.state.searchResults));
-    })
+  updateSearchTerm = (searchTerm) => {
+    console.log('updateSearchTerm',searchTerm)
+    this.setState((prevState) => ({searchTerm:searchTerm}))
+  }
+
+  searchForBook = (query) => {
+      BooksAPI.search(query).then((result) => {
+        this.setState((prevState) => {
+          //
+          let stateFullResult = result;
+          if (this.state.books && stateFullResult && !stateFullResult.error) {
+            stateFullResult = result
+              .map((abook) => this.state.books
+              .find((myBook) => myBook.id === abook.id) || abook)
+          }
+          return ({
+            searchResults: stateFullResult,
+            searchTerm: query
+          })
+        });
+      }).catch((e) => console.log(e))
+   
   }
 
   componentDidMount(){
     BooksAPI.getAll().then((data) => {
-      console.log('data',data);
       this.setState((prevState) => ({
         books: data
-      }),console.log('books',this.state.books));
+      }));
     }).catch((error) => (console.log('[error]: ',error)));
   }
 
@@ -60,19 +67,20 @@ class BooksApp extends React.Component {
     return (
       <Router>
         <div className="app"> 
-
+        
         <Route exact path='/search' component={() => 
           <Search 
-            onSearch= {this.searchForBook} 
-            searchResults= {this.state.searchResults} 
+            onSearch= {this.searchForBook}
+            searchKeyWord = {this.state.searchTerm}
+            searchResults= {this.state.searchResults}
+            searchTerm = { this.state.searchTerm }
             onChangeBookShelf= { this.updateBookShelf }/>
         }></Route>
-
         <Route exact path='/' component={() => 
           <Bookcase 
-          books = {this.state.books} 
-          shelivesTypes = { shelivesTypes }
-          onChangeBookShelf= { this.updateBookShelf } />
+            books = {this.state.books} 
+            shelivesTypes = { shelivesTypes }
+            onChangeBookShelf= { this.updateBookShelf } />
         }></Route>
          </div>
       </Router>

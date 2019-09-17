@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Book from './Book'
-// add propsTypes
+import PropTypes from 'prop-types';
+
 
 class Bookshelf extends Component{
 
@@ -27,3 +28,9 @@ class Bookshelf extends Component{
 }
 
 export default Bookshelf
+
+Bookshelf.propTypes = {
+  shelfTitle: PropTypes.string,
+  classifiedBooks: PropTypes.array,
+  onChangeBookShelf: PropTypes.func
+};

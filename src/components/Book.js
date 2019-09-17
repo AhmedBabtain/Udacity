@@ -1,15 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-// add propsTypes
+
 
 class Book extends Component {
-state = {
-    currentShelf:''
-}
+
     componentDidMount(){
-        this.setState((prevState) => ({
-            currentShelf: this.props.book.shelf
-        }))
     }
 
     selectBookShelf = (event) =>{
@@ -17,15 +12,20 @@ state = {
         let value = event.target.value;
         if(value) this.props.onChangeBookShelf(this.props.book,value)
     }
-
+    getImageUrl = () =>{
+        if (this.props.book.imageLinks && this.props.book.imageLinks.thumbnail) {
+            return this.props.book.imageLinks.thumbnail;
+        }
+        return '';
+    }
     render() {
         return (
             <div className="book">           
                 <div className="book-top">
                     <div className="book-cover" 
-                    style={{ width: 128, height: 193, backgroundImage: `url(${this.props.book.imageLinks.thumbnail})` }}></div>
+                    style={{ width: 128, height: 193, backgroundImage: `url(${this.getImageUrl()})` }}></div>
                     <div className="book-shelf-changer">
-                        <select onChange = {(event) => this.selectBookShelf(event)} value={this.props.book.shelf}>
+                        <select onChange = {(event) => this.selectBookShelf(event)} value={this.props.book.shelf || 'none'}>
                             <option value="move" disabled>Move to...</option>
                             <option value="currentlyReading">Currently Reading</option>
                             <option value="wantToRead">Want to Read</option>
@@ -45,3 +45,8 @@ state = {
 }
 
 export default Book
+
+Book.propTypes = {
+    book: PropTypes.object,
+    onChangeBookShelf: PropTypes.func
+};
