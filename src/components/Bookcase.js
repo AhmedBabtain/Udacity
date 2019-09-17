@@ -1,31 +1,35 @@
 import React, { Component } from 'react'
 import Bookshelf from './Bookshelf'
+import { Redirect } from "react-router-dom";
+
 // add propsTypes
 
 class Bookcase extends Component{
-    // state = {
-    //     wantToRead: [],
-    //     currentlyReading: [],
-    //     read: []
-    // }
+    state = {
+        toSearch: false
+    }
 
     componentDidMount(){
     }
 
-    buildShelves = () => this.props.shelivesTypes.map((selfType,key) => (
+    buildShelves = () => 
+        this.props.shelivesTypes.map((selfType,key) => (
         <Bookshelf 
             shelfTitle = {selfType}
             key = {key}
             classifiedBooks = {this.props.books.filter((b) => (b.shelf === selfType))}
             onChangeBookShelf= { this.props.onChangeBookShelf }
         /> 
-    ))
-
+    ));
     
-    
+    goToSearh = () => this.setState((prevState) => ({ toSearch: true }))
 
     render() {
 
+        if (this.state.toSearch === true){
+            return (<Redirect to='/search' />)
+        }
+        
         return (
             <div className="list-books">
             <div className="list-books-title">
@@ -38,10 +42,11 @@ class Bookcase extends Component{
             </div>
             {/* link */}
             <div className="open-search">
-              <button onClick={() => this.setState({ showSearchPage: true })}>Add a book</button>
+             
+              <button onClick={() => this.goToSearh()}>Add a book</button>
             </div>
           </div>
-        )
+        );
     }
 }
 

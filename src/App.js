@@ -3,9 +3,11 @@ import './App.css'
 import * as BooksAPI from './api/BooksAPI'
 import Bookcase from './components/Bookcase';
 import Search from './components/Search';
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 
-const shelivesTypes = ["wantToRead", "currentlyReading", "read"]; 
+const shelivesTypes = ["wantToRead", "currentlyReading", "read"];
+
 class BooksApp extends React.Component {
   state = {
     /**
@@ -15,7 +17,8 @@ class BooksApp extends React.Component {
      * pages, as well as provide a good URL they can bookmark and share.
      */
     showSearchPage: false,
-    books: []
+    books: [],
+    searchResults: []
 
   }
 
@@ -23,40 +26,57 @@ class BooksApp extends React.Component {
     //check for null
     console.log('book.title: '+book.title+'move shelf to: '+book.shelf)
     BooksAPI.update(book,shelf);
+    
     this.setState((prevState) => {
       book.shelf = shelf;
       return ({
-        books:prevState.books.filter((b) => b.id !== book.id).concat([book])
-      })
-      
+        books:prevState.books
+        .filter((b) => b.id !== book.id)
+        .concat([book])
+      })    
     })
-    // BooksAPI.getAll().then((data) => {
-    //   this.setState((prevState) => ({
-    //     books: data
-    //   }));
-    // });
+  }
+
+  searchForBook = (searchTerm) => {
+    BooksAPI.search(searchTerm).then((result) => {
+      this.setState((prevState) => {
+        return ({
+          searchResults: result
+        })
+      },console.log(this.state.searchResults));
+    })
   }
 
   componentDidMount(){
     BooksAPI.getAll().then((data) => {
+      console.log('data',data);
       this.setState((prevState) => ({
         books: data
-      }));
-    });
+      }),console.log('books',this.state.books));
+    }).catch((error) => (console.log('[error]: ',error)));
   }
 
   render() {
     return (
-      <div className="app"> 
-        {this.state.showSearchPage ? (
-          <Search />
-        ) : (
+      <Router>
+        <div className="app"> 
+
+        <Route exact path='/search' component={() => 
+          <Search 
+            onSearch= {this.searchForBook} 
+            searchResults= {this.state.searchResults} 
+            onChangeBookShelf= { this.updateBookShelf }/>
+        }></Route>
+
+        <Route exact path='/' component={() => 
           <Bookcase 
-            books = {this.state.books} 
-            shelivesTypes = { shelivesTypes }
-            onChangeBookShelf= { this.updateBookShelf }></Bookcase>
-        )}
-      </div>
+          books = {this.state.books} 
+          shelivesTypes = { shelivesTypes }
+          onChangeBookShelf= { this.updateBookShelf } />
+        }></Route>
+         </div>
+      </Router>
+    
     )
   }
 }
