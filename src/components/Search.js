@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import Book from './Book'
 import { Redirect } from "react-router-dom";
 import PropTypes from 'prop-types';
+import {DebounceInput} from 'react-debounce-input';
 
 class Search extends Component {
     state = {
@@ -12,12 +13,14 @@ class Search extends Component {
     getSearchTerm = () => {
         return this.getSearchTerm()
     }
-    onKeyPress = (event) => {
+    onChangeInputHandler = (event) => {
         let value = event.target.value;
-        this.setState((prevState) => ({ searchTerm: value }));
+        this.props.onSearch(value);
+        // let value = event.target.value;
+        // this.setState((prevState) => ({ searchTerm: value }));
 
-        if (event.key === "Enter")
-            this.props.onSearch(value);
+        // if (event.key === "Enter")
+        //     this.props.onSearch(value);
     }
 
 
@@ -33,7 +36,7 @@ class Search extends Component {
                 <div className="search-books-bar">
                     <button className="close-search" onClick={() => this.goToMainPage()}>Close</button>
                     <div className="search-books-input-wrapper">
-                        <input type="text" onKeyUp={(event) => this.onKeyPress(event)} placeholder="Search by title or author (enter)" />
+                        <DebounceInput  debounceTimeout={1000} onChange={(event) => this.onChangeInputHandler(event)} value={this.props.searchKeyWord} placeholder="Search by title or author" ></DebounceInput>
                     </div>
                 </div>
                 <div className="search-books-results">
